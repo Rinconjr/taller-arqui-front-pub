@@ -10,7 +10,6 @@
 </template>
 
 <script>
-import axios from 'axios';
 import NavBar from './components/NavBar.vue';
 import Swal from 'sweetalert2';
 
@@ -21,7 +20,7 @@ export default {
   },
   data() {
     return {
-      inputValue: ''
+      inputValue: '',
     };
   },
   methods: {
@@ -32,39 +31,51 @@ export default {
           title: 'Oops...',
           text: 'Debes escribir algo para publicar!',
         });
-      } else {
-        try {
-          // Realiza la solicitud POST al backend con el formato JSON correcto
-          await axios.post('http://localhost:7108/api/messages', {
-            text: this.inputValue
-          }, {
-            headers: {
-              'Content-Type': 'application/json'
-            }
-          });
+        return; // Salir si el input está vacío
+      }
 
+      try {
+        // Realizar la solicitud POST al backend usando Fetch
+        const response = await fetch('http://localhost:5148/api/messages', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ text: this.inputValue }), // Asegúrate de que el campo coincida con el backend
+        });
 
-          // Muestra una alerta de éxito
+        // Verificar si la respuesta es exitosa
+        if (response.ok) {
+          await response.json();
           Swal.fire({
             icon: 'success',
             title: 'Publicado!',
-            html: `Tu mensaje ha sido publicado correctamente! <strong>${this.inputValue}</strong>`,
+            text: `Se ha publicado el siguiente mensaje: ${this.inputValue}`,
           });
 
-          // Limpia el campo de entrada
+          // Limpiar el input después de la publicación
           this.inputValue = '';
-        } catch (error) {
-          // Muestra una alerta de error en caso de fallo
+        } else {
+          // Manejar errores en la respuesta
+          const errorText = await response.text();
           Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: `Hubo un problema al publicar el mensaje: ${error.response ? error.response.data : error.message}`,
+            icon: 'warning',
+            title: 'Error en la respuesta',
+            text: `No se pudo publicar el mensaje: ${errorText}`,
           });
         }
+      } catch (error) {
+        // Manejar errores de red
+        console.error('Error al enviar el mensaje:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Ocurrió un problema al enviar el mensaje.',
+        });
       }
-    }
-  }
-}
+    },
+  },
+};
 </script>
 
 <style>
