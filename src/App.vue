@@ -4,6 +4,11 @@
     <h1>Aplicación Publicador</h1>
     <div>
       <input v-model="inputValue" type="text" placeholder="Escribe algo para publicar..." />
+      <select v-model="selectedTopic">
+        <option value="" disabled>Selecciona un tópico</option>
+        <option value="topico1">Tópico 1</option>
+        <option value="topico2">Tópico 2</option>
+      </select>
       <button @click="sendData">Enviar</button>
     </div>
   </div>
@@ -21,6 +26,7 @@ export default {
   data() {
     return {
       inputValue: '',
+      selectedTopic: '',
     };
   },
   methods: {
@@ -31,32 +37,41 @@ export default {
           title: 'Oops...',
           text: 'Debes escribir algo para publicar!',
         });
-        return; // Salir si el input está vacío
+        return;
+      }
+
+      if (this.selectedTopic === '') {
+        Swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: 'Debes seleccionar un tópico!',
+        });
+        return;
       }
 
       try {
-        // Realizar la solicitud POST al backend usando Fetch
         const response = await fetch('http://localhost:5148/api/messages', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ text: this.inputValue }), // Asegúrate de que el campo coincida con el backend
+          body: JSON.stringify({
+            text: this.inputValue,
+            topic: this.selectedTopic,
+          }),
         });
 
-        // Verificar si la respuesta es exitosa
         if (response.ok) {
           await response.json();
           Swal.fire({
             icon: 'success',
             title: 'Publicado!',
-            text: `Se ha publicado el siguiente mensaje: ${this.inputValue}`,
+            text: `Se ha publicado el siguiente mensaje en ${this.selectedTopic}: ${this.inputValue}`,
           });
 
-          // Limpiar el input después de la publicación
           this.inputValue = '';
+          this.selectedTopic = ''; // Limpiar el dropdown
         } else {
-          // Manejar errores en la respuesta
           const errorText = await response.text();
           Swal.fire({
             icon: 'warning',
@@ -65,7 +80,6 @@ export default {
           });
         }
       } catch (error) {
-        // Manejar errores de red
         console.error('Error al enviar el mensaje:', error);
         Swal.fire({
           icon: 'error',
@@ -91,7 +105,8 @@ h1 {
   color: #42b983;
 }
 
-input[type="text"] {
+input[type="text"],
+select {
   padding: 0.5em;
   margin-right: 0.5em;
 }
