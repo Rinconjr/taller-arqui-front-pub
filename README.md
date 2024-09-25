@@ -1,24 +1,63 @@
-# pub
 
-## Project setup
-```
-npm install
-```
+# Vue.js Publicador
 
-### Compiles and hot-reloads for development
-```
+Este proyecto es una aplicación frontend construida con Vue.js que permite a los usuarios enviar mensajes a través de un servicio HTTP a una API .NET. Los mensajes luego son publicados en un broker de mensajería RabbitMQ.
+
+## Requisitos
+
+- Node.js 12.x o superior
+- npm o yarn
+- RabbitMQ corriendo en la infraestructura
+
+## Configuración del Proyecto
+
+1. Clona el repositorio:
+    ```bash
+    git clone <URL-del-repositorio>
+    cd nombre-del-repositorio
+    ```
+
+2. Instala las dependencias:
+    ```bash
+    npm install
+    ```
+
+## Comandos
+
+### Compilar y recargar automáticamente para desarrollo
+
+```bash
 npm run serve
 ```
 
-### Compiles and minifies for production
-```
+Este comando levanta un servidor local en `http://localhost:8080` con hot-reloading para facilitar el desarrollo.
+
+### Compilar y minificar para producción
+
+```bash
 npm run build
 ```
 
-### Lints and fixes files
-```
+Este comando genera los archivos optimizados para producción, listos para ser desplegados en un servidor.
+
+### Corregir y arreglar archivos de linting
+
+```bash
 npm run lint
 ```
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+Ejecuta ESLint para corregir problemas de código y mantener una buena calidad de código.
+
+## Despliegue
+
+1. Luego de ejecutar `npm run build`, toma los archivos generados en la carpeta `dist/` y despliega en un servidor web (Nginx, Apache, etc.).
+2. Asegúrate de configurar el proxy en el servidor web para apuntar a la API de .NET si es necesario.
+
+## Interacción con otros componentes
+
+- La aplicación Vue.js envía peticiones HTTP a un endpoint expuesto por el servicio **.NET Publicador** que luego envía los mensajes a RabbitMQ.
+- RabbitMQ se encarga de distribuir los mensajes a otros servicios suscriptores, como el servicio que guarda en SQL Server y el servicio que distribuye a través de WebSockets.
+
+## Personalizar configuración
+
+Para más detalles sobre cómo personalizar la configuración del proyecto Vue.js, consulta la [documentación de Vue CLI](https://cli.vuejs.org/config/).
